@@ -1,50 +1,52 @@
 import { api } from './api'
 import { useEffect, useState } from 'react'
 import { User } from './types/user'
-
-const people = [
-  {
-    name: 'Calvin Hawkins',
-    email: 'calvin.hawkins@example.com',
-    image:
-      'https://images.unsplash.com/photo-1491528323818-fdd1faba62cc?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-  },
-  {
-    name: 'Kristen Ramos',
-    email: 'kristen.ramos@example.com',
-    image:
-      'https://images.unsplash.com/photo-1550525811-e5869dd03032?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-  },
-  {
-    name: 'Ted Fox',
-    email: 'ted.fox@example.com',
-    image:
-      'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-  },
-]
+import Skeleton from 'react-loading-skeleton'
 
 export default function Example() {
   const [users, setUsers] = useState<User[]>([])
+  const [loading, setLoading] = useState(false)
 
   useEffect(() => {
     const fetchUsers = async () => {
+      setLoading(true)
       const { data: users } = await api.get('/users')
       setUsers(users)
+      setLoading(false)
     }
 
     fetchUsers()
   }, [])
 
+  useEffect(() => {
+    console.log(loading)
+  }, [loading])
+
   return (
-    <ul className="divide-y divide-gray-200">
-      {users.map((user) => (
-        <li key={user.email} className="py-4 flex">
-          <div className="ml-3">
-            <p className="text-sm font-medium text-gray-900">{user.name}</p>
-            <p className="text-sm text-gray-500">{user.email}</p>
+    <div className="mt-4 mx-8">
+      {loading && (
+        <>
+          <div>
+            <Skeleton count={2} enableAnimation />
           </div>
-        </li>
-      ))}
-    </ul>
+          <div className="mt-3">
+            <Skeleton count={2} enableAnimation />
+          </div>
+        </>
+      )}
+
+      <ul className="divide-y divide-gray-200">
+        {!loading &&
+          users.length > 0 &&
+          users.map((user) => (
+            <li key={user.email} className="py-4 flex transition-all">
+              <div className="">
+                <p className="text-sm font-medium text-gray-900">{user.name}</p>
+                <p className="text-sm text-gray-500">{user.email}</p>
+              </div>
+            </li>
+          ))}
+      </ul>
+    </div>
   )
 }
